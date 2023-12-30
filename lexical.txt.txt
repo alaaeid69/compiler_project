@@ -1,0 +1,165 @@
+#include <iostream>
+#include <vector>
+#include <cctype>
+#include <sstream>
+#include <string>
+
+enum TokenType {
+    IDENTIFIER,
+    NUMBER,
+    PLUS,
+    MINUS,
+    MULTIPLY,
+    DIVIDE,
+    EQUALS,
+    SEMICOLON,
+    LPAREN,
+    RPAREN,
+    KEYWORD,
+    GREATER_THAN,
+    SMALLER_THAN
+};
+
+struct Token {
+    TokenType type;
+    std::string value;
+};
+
+class LexicalAnalyzer {
+private:
+    std::string input;
+    size_t currentPosition;
+
+public:
+    LexicalAnalyzer(const std::string& input) : input(input), currentPosition(0) {}
+
+    std::vector<Token> analyze() {
+        std::vector<Token> tokens;
+
+        while (currentPosition < input.length()) {
+            char currentChar = input[currentPosition];
+
+            if (isalpha(currentChar)) {
+                std::string identifier;
+                identifier += currentChar;
+                currentPosition++;
+
+                while (currentPosition < input.length() && isalnum(input[currentPosition])) {
+                    identifier += input[currentPosition];
+                    currentPosition++;
+                }
+
+                if (identifier == "if" || identifier == "else" || identifier == "while" || identifier == "for" || identifier == "do" || identifier == "break" || identifier == "continue"
+                    || identifier == "long" || identifier == "case" || identifier == "char" || identifier == "return" || identifier == "float" || identifier == "double" || identifier == "int"
+                    || identifier == "short" || identifier == "typedef" || identifier == "switch" || identifier == "unsigned" || identifier == "void" || identifier == "union" || identifier == "const"
+                    || identifier == "enum" || identifier == "volatile" || identifier == "sizeof" || identifier == "struct" || identifier == "static") {
+                    tokens.push_back({ KEYWORD, identifier });
+                }
+                else {
+                    tokens.push_back({ IDENTIFIER, identifier });
+                }
+            }
+            else if (isdigit(currentChar)) {
+                std::string number;
+                number += currentChar;
+                currentPosition++;
+
+                while (currentPosition < input.length() && isdigit(input[currentPosition])) {
+                    number += input[currentPosition];
+                    currentPosition++;
+                }
+
+                tokens.push_back({ NUMBER, number });
+            }
+            else {
+                switch (currentChar) {
+                case '+':
+                    tokens.push_back({ PLUS, "+" });
+                    break;
+                case '-':
+                    tokens.push_back({ MINUS, "-" });
+                    break;
+                case '*':
+                    tokens.push_back({ MULTIPLY, "*" });
+                    break;
+                case '/':
+                    tokens.push_back({ DIVIDE, "/" });
+                    break;
+                case '=':
+                    tokens.push_back({ EQUALS, "=" });
+                    break;
+                case ';':
+                    tokens.push_back({ SEMICOLON, ";" });
+                    break;
+                case '(':
+                    tokens.push_back({ LPAREN, "(" });
+                    break;
+                case ')':
+                    tokens.push_back({ RPAREN, ")" });
+                    break;
+                case '>':
+                    tokens.push_back({ GREATER_THAN, ">" });
+                    break;
+                case '<':
+                    tokens.push_back({ SMALLER_THAN, "<" });
+                    break;
+                default:
+                    currentPosition++;
+                    break;
+                }
+                currentPosition++;
+            }
+        }
+
+        return tokens;
+    }
+};
+
+std::string tokenTypeToString(TokenType type) {
+    switch (type) {
+    case IDENTIFIER:
+        return "IDENTIFIER";
+    case NUMBER:
+        return "NUMBER";
+    case PLUS:
+        return "PLUS";
+    case MINUS:
+        return "MINUS";
+    case MULTIPLY:
+        return "MULTIPLY";
+    case DIVIDE:
+        return "DIVIDE";
+    case EQUALS:
+        return "EQUALS";
+    case SEMICOLON:
+        return "SEMICOLON";
+    case LPAREN:
+        return "LEFT_PAREN";
+    case RPAREN:
+        return "RIGHT_PAREN";
+    case KEYWORD:
+        return "KEYWORD";
+    case GREATER_THAN:
+        return "GREATER_THAN";
+    case SMALLER_THAN:
+        return "SMALLER_THAN";
+    default:
+        return "UNKNOWN";
+    }
+}
+
+int main() {
+    std::string input;
+
+    std::cout << "Enter expression: ";
+    std::getline(std::cin, input);
+
+    LexicalAnalyzer analyzer(input);
+    std::vector<Token> tokens = analyzer.analyze();
+
+    for (const Token& token : tokens) {
+        std::cout << "[" << tokenTypeToString(token.type) << ", " << token.value << "]" << std::endl;
+    }
+
+    return 0;
+}
